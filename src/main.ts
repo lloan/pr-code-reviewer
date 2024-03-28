@@ -78,18 +78,45 @@ async function analyzeCode(
   return comments;
 }
 
+const commentContext = {
+  "context": {
+    "conventional_comments": {
+      "praise": "Highlights something positive. Always look for something to sincerely praise.",
+      "nitpick": "Trivial, preference-based requests. These should be non-blocking by nature.",
+      "suggestion": "Proposes improvements to the current subject. Be explicit and clear on what is being suggested and why it is an improvement.",
+      "issue": "Highlights specific problems with the subject under review. These problems can be user-facing or behind the scenes. It is strongly recommended to pair this comment with a suggestion.",
+      "todo": "Small, trivial, but necessary changes. Distinguishing todo comments from issues or suggestions helps direct the reader's attention to comments requiring more involvement.",
+      "question": "Appropriate if you have a potential concern but are not quite sure if it's relevant or not. Asking the author for clarification or investigation can lead to a quick resolution.",
+      "thought": "Represents an idea that popped up from reviewing. These comments are non-blocking by nature, but they are extremely valuable and can lead to more focused initiatives and mentoring opportunities.",
+      "chore": "Simple tasks that must be done before the subject can be 'officially' accepted. Usually, these comments reference some common process.",
+      "note": "Always non-blocking and simply highlight something the reader should take note of.",
+      "typo": "Typo comments are like todo:, where the main issue is a misspelling.",
+      "polish": "Polish comments are like a suggestion, where there is nothing necessarily wrong with the relevant content, there's just some ways to immediately improve the quality.",
+      "quibble": "Quibbles are very much like nitpick:, except it does not conjure up images of lice and animal hygiene practices."
+    },
+    "decorations": {
+      "non-blocking": "A comment with this decoration should not prevent the subject under review from being accepted. This is helpful for organizations that consider comments blocking by default.",
+      "blocking": "A comment with this decoration should prevent the subject under review from being accepted, until it is resolved. This is helpful for organizations that consider comments non-blocking by default.",
+      "if-minor": "This decoration gives some freedom to the author that they should resolve the comment only if the changes end up being minor or trivial."
+    },
+    "example": "For instance, a suggestion tag signifies a possible improvement proposed by the reviewer, but it isn't obligatory. On the other hand, an issue tag denotes a problem that needs rectification.",
+    "usage": "The non-blocking tag is used to indicate a comment that should not prevent the code from being merged, but which the author might consider addressing."
+  }
+};
+
 function createPrompt(file: File, chunk: Chunk, prDetails: PRDetails): string {
   return `Your role is that of a engineer doing code reviews. Your task is to review pull requests. Instructions:
 - Provide the response in following JSON format:  {"reviews": [{"lineNumber":  <line_number>, "reviewComment": "<review comment>"}]}
 - Keep positive comments or compliments to a minimum and prefix them with Praise:
 - Keep negative comments or criticisms to a minimum and prefix them with Suggestion:
 - Provide comments and suggestions ONLY if there is something to improve, otherwise "reviews" should be an empty array.
-- Write the comment in GitHub Markdown format.
-- Make sure to call out if tests were not written for code. If tests are missing, suggest writing tests.
-- Code should be properly formatted, highlighted and easy to read.
-- Use the given description only for the overall context and only comment the code.
-- If the description of the pull request includes Explain: - make sure to use that as context as well.
+- Make sure to call out if tests were not written for code. If tests are missing, suggest writing tests. 
+- Make sure to keep accessability in mind when working with web technologies.
+- Use the given description only for the overall context and only comment the code. Do not provide feedback on the description.
 - IMPORTANT: NEVER suggest adding comments to the code.
+- Write the comment in GitHub Markdown format.
+- Use ${JSON.stringify(commentContext)} for context on the types of comments to provide and how to annotate them. Example: ${JSON.stringify(commentContext.context.example)}. Usage: ${JSON.stringify(commentContext.context.usage)}.
+
 
 Review the following code diff in the file "${
     file.to
