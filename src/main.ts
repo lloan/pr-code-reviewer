@@ -99,23 +99,21 @@ const commentContext = {
       "blocking": "A comment with this decoration should prevent the subject under review from being accepted, until it is resolved. This is helpful for organizations that consider comments non-blocking by default.",
       "if-minor": "This decoration gives some freedom to the author that they should resolve the comment only if the changes end up being minor or trivial."
     },
-    "example": "For instance, a suggestion tag signifies a possible improvement proposed by the reviewer, but it isn't obligatory. On the other hand, an issue tag denotes a problem that needs rectification.",
+    "example": "For instance, a suggestion tag (suggestion: [feedback]) signifies a possible improvement proposed by the reviewer, but it isn't obligatory. On the other hand, an issue (issue: [feedback]) tag denotes a problem that needs rectification. Decorations are used along with tags, for example, (suggestion (non-blocking): [feedback]).",
     "usage": "The non-blocking tag is used to indicate a comment that should not prevent the code from being merged, but which the author might consider addressing."
   }
 };
 
 function createPrompt(file: File, chunk: Chunk, prDetails: PRDetails): string {
   return `Your role is that of a engineer doing code reviews. Your task is to review pull requests. Instructions:
-- Provide the response in following JSON format:  {"reviews": [{"lineNumber":  <line_number>, "reviewComment": "<review comment>"}]}
-- Keep positive comments or compliments to a minimum and prefix them with Praise:
-- Keep negative comments or criticisms to a minimum and prefix them with Suggestion:
+- Provide the response in following JSON format:  {"reviews": [{"lineNumber":  <line_number>, "reviewComment": "<review comment>"}]} 
 - Provide comments and suggestions ONLY if there is something to improve, otherwise "reviews" should be an empty array.
 - Make sure to call out if tests were not written for code. If tests are missing, suggest writing tests. 
 - Make sure to keep accessability in mind when working with web technologies.
 - Use the given description only for the overall context and only comment the code. Do not provide feedback on the description.
 - IMPORTANT: NEVER suggest adding comments to the code.
 - Write the comment in GitHub Markdown format.
-- Use ${JSON.stringify(commentContext)} for context on the types of comments to provide and how to annotate them. Example: ${JSON.stringify(commentContext.context.example)}. Usage: ${JSON.stringify(commentContext.context.usage)}.
+- Use ${JSON.stringify(commentContext)} for context on the types of comments to provide and how to annotate them. Use the keys to prefix comment. Example: ${JSON.stringify(commentContext.context.example)}. Usage: ${JSON.stringify(commentContext.context.usage)}.
 
 
 Review the following code diff in the file "${
